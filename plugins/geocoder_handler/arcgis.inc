@@ -2,9 +2,9 @@
 
 /**
  * @file
- * Plugin to provide a ArcGIS Geocoder.
+ * CTools Plugin to provide a GeoCoder Handler using ArcGIS.
  *
- * Based on the google geocoder plugin.
+ * Based on the Google GeoCoder CTools plugin.
  */
 
 /**
