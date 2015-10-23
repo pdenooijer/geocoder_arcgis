@@ -1,26 +1,26 @@
 <?php
 /**
  * @file
- * Functions to tell CTools we have a GeoCoder plugin.
+ * Functions to tell CTools we have a Geocoder plugin (geocoder_handler).
  */
 
 /**
  * Implements hook_ctools_plugin_api().
  */
-function arcgis_geocoder_ctools_plugin_api() {
+function geocoder_arcgis_ctools_plugin_api() {
   return array('version' => 1);
 }
 
 /**
  * Implements hook_ctools_plugin_type().
  */
-function arcgis_geocoder_ctools_plugin_type() {
+function geocoder_arcgis_ctools_plugin_type() {
   return array('geocoder_handler' => array());
 }
 
 /**
  * Implements hook_ctools_plugin_directory().
  */
-function arcgis_geocoder_ctools_plugin_directory($owner, $plugin_type) {
+function geocoder_arcgis_ctools_plugin_directory($owner, $plugin_type) {
   return 'plugins/' . $plugin_type;
 }

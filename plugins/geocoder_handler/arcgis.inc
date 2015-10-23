@@ -2,9 +2,9 @@
 
 /**
  * @file
- * CTools Plugin to provide a GeoCoder Handler using ArcGIS.
+ * CTools Plugin to provide a Geocoder Handler using ArcGIS.
  *
- * Based on the Google GeoCoder CTools plugin.
+ * Based on the Google Geocoder CTools plugin.
  */
 
 /**
@@ -12,8 +12,8 @@
  * by the system that includes this file.
  */
 $plugin = array(
-  'title' => t("ArcGIS Geocoder"),
-  'description' => t('Geocodes via ArcGIS Online'),
+  'title' => t('ArcGIS'),
+  'description' => t('Geocoding with ArcGIS'),
   'callback' => 'geocoder_arcgis',
   'field_types' => array(
     'addressfield',
@@ -48,8 +48,15 @@ function geocoder_arcgis($address, $options = array()) {
       'f' => 'json',
     );
 
+    if (!isset($options['https']) || $options['https']) {
+      $protocol = 'https';
+    }
+    else {
+      $protocol = 'http';
+    }
+
     $url = url(
-      "http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates",
+      $protocol . "://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates",
       array('query' => $query)
     );
     $results = drupal_http_request($url);
@@ -96,7 +103,7 @@ function geocoder_arcgis($address, $options = array()) {
     }
 
     // Check if we should return all results as a compound geometry.
-    if (isset($options['all_results']) && $options['all_results']) {
+    if (!empty($options['all_results'])) {
       return geoPHP::geometryReduce($geometries);
     }
 
@@ -131,8 +138,10 @@ function geocoder_arcgis($address, $options = array()) {
  *   Geometry collection result or NULL if none/error
  */
 function geocoder_arcgis_field($field, $field_item, $options = array()) {
-  if ($field['type'] == 'text' || $field['type'] == 'text_long' ||
-      $field['type'] == 'text_with_summary' || $field['type'] == 'computed') {
+  if ($field['type'] == 'computed' ||
+      $field['type'] == 'text' ||
+      $field['type'] == 'text_long' ||
+      $field['type'] == 'text_with_summary') {
     return geocoder_arcgis($field_item['value'], $options);
   }
   if ($field['type'] == 'addressfield') {
@@ -164,38 +173,26 @@ function geocoder_arcgis_field($field, $field_item, $options = array()) {
 function geocoder_arcgis_form($default_values = array()) {
   $form = array();
 
-  /*
-   * TODO: add more geometry types, currently only point is supported.
-   *
-
-  @codingStandardsIgnoreStart
-
-  $form['geometry_type'] = array(
-    '#type' => 'select',
-    '#title' => 'Geometry Type',
-    '#options' => array(
-      'point' => 'Point (default)',
-      'bounds' => 'Bounding Box',
-      'viewport' => 'Viewport',
-    ),
-    '#default_value' => isset($default_values['geometry_type']) ? $default_values['geometry_type'] : 'point',
+  $form['https'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Use HTTPS connection'),
+    '#description' => t('Use a secure connection to the ArcGIS service.'),
+    '#default_value' => isset($default_values['https']) ? $default_values['https'] : 1,
   );
-
-  @codingStandardsIgnoreEnd
-  */
 
   $form['all_results'] = array(
     '#type' => 'checkbox',
-    '#title' => 'All geocode results',
+    '#title' => t('All geocode results'),
+    '#description' => t('Check this to return all results as a Multi-Geometry (MultiPoint or MultiPolygon).'),
     '#default_value' => isset($default_values['all_results']) ? $default_values['all_results'] : 0,
-    '#description' => 'Check this to return all results as a Multi-Geometry (MultiPoint or MultiPolygon).',
   );
 
   $form['score_threshold'] = array(
     '#type' => 'select',
-    '#title' => 'Minimum score threshold for a results te be valid.',
+    '#title' => t('Minimum score threshold for a results te be valid.'),
+    '#description' => t('Selecting a higher value will limit the amount of results by ArcGIS score.'),
     '#options' => array(
-      0 => '0 (default)',
+      0 => t('0 (default)'),
       25 => '25',
       50 => '50',
       75 => '75',
@@ -206,7 +203,6 @@ function geocoder_arcgis_form($default_values = array()) {
       99 => '99',
     ),
     '#default_value' => isset($default_values['score_threshold']) ? $default_values['score_threshold'] : 0,
-    '#description' => 'Selecting a higher value will limit the amount of results by the ArcGIS score.',
   );
 
   return $form;
