@@ -1,0 +1,4 @@
+name = Geocoder ArcGIS
+description = "Provides a CTools plugin for the Geocoder module that translates an address to a geolocation by using ArcGIS."
+core = 7.x
+dependencies[] = geocoder
