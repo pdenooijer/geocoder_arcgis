@@ -8,6 +8,7 @@
  */
 
 use Drupal\geocoder_arcgis\GeocoderArcgis\ArcgisException;
+use Drupal\geocoder_arcgis\GeocoderArcgis\ArcgisPoint;
 use Drupal\geocoder_arcgis\GeocoderArcgis\DrupalEnvironment;
 use Drupal\geocoder_arcgis\GeocoderArcgis\GeocoderArcgis;
 
@@ -40,10 +41,12 @@ $plugin = array(
  * @param array $options
  *   Array with options set in the backend
  *
- * @return \GeometryCollection|NULL
- *   Geometry collection result or NULL if none/error
+ * @return ArcgisPoint|\MultiPoint|\GeometryCollection|NULL
+ *   Geometry type class or NULL if none/error
  */
 function geocoder_arcgis($address, $options = array()) {
+  autoload_geocoder_arcgis();
+
   try {
     $geocoder = new GeocoderArcgis(new DrupalEnvironment(), $options);
     return $geocoder->getLocationFromAddress($address);
@@ -52,6 +55,23 @@ function geocoder_arcgis($address, $options = array()) {
     watchdog_exception('geocoder', $e);
     return NULL;
   }
+}
+
+/**
+ * Autoload the Geocoder ArcGIS classes.
+ *
+ * Either by using an autoload or by requiring the four files.
+ */
+function autoload_geocoder_arcgis() {
+  if (class_exists('Drupal\geocoder_arcgis\GeocoderArcgis\GeocoderArcgis')) {
+    return;
+  }
+
+  $path = dirname(dirname(__DIR__)) . '/src/GeocoderArcgis/';
+  require $path . 'ArcgisException.php';
+  require $path . 'ArcgisPoint.php';
+  require $path . 'DrupalEnvironment.php';
+  require $path . 'GeocoderArcgis.php';
 }
 
 /**
