@@ -10,91 +10,63 @@ use Drupal\geocoder_arcgis\GeocoderArcgis\GeocoderArcgis;
  */
 class GeocoderArcgisTest extends \PHPUnit_Framework_TestCase {
 
-  /**
-   * @test
-   */
-  public function shouldHandleResultError() {
+  public function testHandleResultError() {
     $result = (object) array('code' => 0, 'error' => 'Test error');
-    $env = $this->getDrupalEnvironmentMock($result);
-    $geocoder = new GeocoderArcgis($env, array());
+    $geocoder = $this->createGeocoderArcgis($result);
 
     $this->setExpectedException(
       'Drupal\geocoder_arcgis\GeocoderArcgis\ArcgisException',
       'HTTP request to ArcGIS failed. Code: 0 Error: Test error'
     );
-    $geocoder->getLocationFromAddress('test');
+    $geocoder->getLocation('test');
   }
 
-  /**
-   * @test
-   */
-  public function shouldHandleEmptyCandidates() {
+  public function testHandleEmptyCandidates() {
     $result = (object) array('data' => '{"candidates":[]}');
-    $env = $this->getDrupalEnvironmentMock($result);
-    $geocoder = new GeocoderArcgis($env, array());
+    $geocoder = $this->createGeocoderArcgis($result);
 
     $this->setExpectedException(
       'Drupal\geocoder_arcgis\GeocoderArcgis\ArcgisException',
       'ArcGIS could not find any candidates.'
     );
-    $geocoder->getLocationFromAddress('test');
+    $geocoder->getLocation('test');
   }
 
-  /**
-   * @test
-   */
-  public function shouldHandleEmptyValidCandidates() {
+  public function testHandleEmptyValidCandidates() {
     $options = array('score_threshold' => 99.3);
 
-    $env = $this->getDrupalEnvironmentMock($this->getResults());
-    $geocoder = new GeocoderArcgis($env, $options);
+    $geocoder = $this->createGeocoderArcgis($this->getResults(), $options);
 
     $this->setExpectedException(
       'Drupal\geocoder_arcgis\GeocoderArcgis\ArcgisException',
       'ArcGIS did not return any valid candidates.'
     );
-    $geocoder->getLocationFromAddress('test');
+    $geocoder->getLocation('test');
   }
 
-  /**
-   * @test
-   */
-  public function shouldHandleDefaultRequestSecure() {
-    $env = $this->getDrupalEnvironmentMock($this->getResults());
-    $geocoder = new GeocoderArcgis($env, array());
-    $geocoder->getLocationFromAddress('test');
+  public function testHandleDefaultRequestSecure() {
+    $geocoder = $this->createGeocoderArcgis($this->getResults());
+    $geocoder->getLocation('test');
   }
 
-  /**
-   * @test
-   */
-  public function shouldHandleSecureRequest() {
+  public function testHandleSecureRequest() {
     $options = array('https' => TRUE);
 
-    $env = $this->getDrupalEnvironmentMock($this->getResults());
-    $geocoder = new GeocoderArcgis($env, $options);
-    $geocoder->getLocationFromAddress('test');
+    $geocoder = $this->createGeocoderArcgis($this->getResults(), $options);
+    $geocoder->getLocation('test');
   }
 
-  /**
-   * @test
-   */
-  public function shouldHandleNonSecureRequest() {
+  public function testHandleNonSecureRequest() {
     $url = 'http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?singleLine=test&f=json';
     $options = array('https' => FALSE);
 
-    $env = $this->getDrupalEnvironmentMock($this->getResults(), $url);
-    $geocoder = new GeocoderArcgis($env, $options);
-    $geocoder->getLocationFromAddress('test');
+    $geocoder = $this->createGeocoderArcgis($this->getResults(), $options, $url);
+    $geocoder->getLocation('test');
   }
 
-  /**
-   * @test
-   */
-  public function shouldReturnLocationFromAddress() {
-    $env = $this->getDrupalEnvironmentMock($this->getResults());
-    $geocoder = new GeocoderArcgis($env, array());
-    $result = $geocoder->getLocationFromAddress('test');
+  public function testReturnLocationFromAddress() {
+    $geocoder = $this->createGeocoderArcgis($this->getResults());
+    $result = $geocoder->getLocation('test');
 
     $this->checkArcgisPoint($result);
 
@@ -104,58 +76,42 @@ class GeocoderArcgisTest extends \PHPUnit_Framework_TestCase {
     );
   }
 
-  /**
-   * @test
-   */
-  public function shouldReturnAllResults() {
+  public function testReturnAllResults() {
     $options = array('all_results' => 1);
 
-    $env = $this->getDrupalEnvironmentMock($this->getResults());
-    $geocoder = new GeocoderArcgis($env, $options);
-    $result = $geocoder->getLocationFromAddress('test');
+    $geocoder = $this->createGeocoderArcgis($this->getResults(), $options);
+    $result = $geocoder->getLocation('test');
 
     $this->assertInstanceOf('\MultiPoint', $result);
     $this->assertObjectHasAttribute('components', $result);
     $this->assertSameSize(range(0, 19), $result->components);
   }
 
-  /**
-   * @test
-   */
-  public function shouldReturnPointAndAllResultsWithScoreThreshold() {
+  public function testReturnPointAndAllResultsWithScoreThreshold() {
     $options = array('score_threshold' => 80);
 
-    $env = $this->getDrupalEnvironmentMock($this->getResults());
-    $geocoder = new GeocoderArcgis($env, $options);
-    $result = $geocoder->getLocationFromAddress('test');
+    $geocoder = $this->createGeocoderArcgis($this->getResults(), $options);
+    $result = $geocoder->getLocation('test');
 
     $this->checkArcgisPoint($result);
     $this->assertSameSize(range(0, 18), $result->data['geocoder_alternatives']);
   }
 
-  /**
-   * @test
-   */
-  public function shouldReturnPointAndLessResultsWithScoreThreshold() {
+  public function testReturnPointAndLessResultsWithScoreThreshold() {
     $options = array('score_threshold' => 81);
 
-    $env = $this->getDrupalEnvironmentMock($this->getResults());
-    $geocoder = new GeocoderArcgis($env, $options);
-    $result = $geocoder->getLocationFromAddress('test');
+    $geocoder = $this->createGeocoderArcgis($this->getResults(), $options);
+    $result = $geocoder->getLocation('test');
 
     $this->checkArcgisPoint($result);
     $this->assertSameSize(range(0, 6), $result->data['geocoder_alternatives']);
   }
 
-  /**
-   * @test
-   */
-  public function shouldReturnPointAndOnlyPreciseResultsWithScoreThreshold() {
+  public function testReturnPointAndOnlyPreciseResultsWithScoreThreshold() {
     $options = array('score_threshold' => 99);
 
-    $env = $this->getDrupalEnvironmentMock($this->getResults());
-    $geocoder = new GeocoderArcgis($env, $options);
-    $result = $geocoder->getLocationFromAddress('test');
+    $geocoder = $this->createGeocoderArcgis($this->getResults(), $options);
+    $result = $geocoder->getLocation('test');
 
     $this->checkArcgisPoint($result);
     $this->assertSameSize(range(0, 1), $result->data['geocoder_alternatives']);
@@ -195,6 +151,24 @@ class GeocoderArcgisTest extends \PHPUnit_Framework_TestCase {
   }
 
   /**
+   * Create a GeocoderArcgis object with a DrupalEnvironment Mock.
+   *
+   * @param object $result
+   *   The HTTP request result
+   * @param array $options
+   *   Specified options
+   * @param string $url
+   *   The request url
+   *
+   * @return GeocoderArcgis
+   *   Newly created object
+   */
+  private function createGeocoderArcgis($result, $options = array(), $url = '') {
+    $env = $this->getDrupalEnvironmentMock($result, $url);
+    return new GeocoderArcgis($env, $options);
+  }
+
+  /**
    * Set up the test cases.
    *
    * @param object $result
@@ -204,7 +178,7 @@ class GeocoderArcgisTest extends \PHPUnit_Framework_TestCase {
    *
    * @return \PHPUnit_Framework_MockObject_MockObject
    */
-  private function getDrupalEnvironmentMock($result, $url = '') {
+  private function getDrupalEnvironmentMock($result, $url) {
     if (!$url) {
       $url = 'https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates?singleLine=test&f=json';
     }
@@ -214,15 +188,15 @@ class GeocoderArcgisTest extends \PHPUnit_Framework_TestCase {
       ->getMock();
 
     $geocoder->expects($this->once())
-      ->method('loadGeoPHP')
-      ->will($this->returnValue(TRUE));
+      ->method('loadGeoPHP');
 
     $geocoder->expects($this->once())
       ->method('doHTTPRequest')
       ->with($this->equalTo($url))
       ->will($this->returnValue($result));
 
-    $geocoder->method('translate')
+    $geocoder->expects($this->atMost(1))
+      ->method('translate')
       ->will($this->returnCallback(function($string, $replacements = array()) {
         return strtr($string, $replacements);
       }));

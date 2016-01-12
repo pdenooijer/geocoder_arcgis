@@ -49,7 +49,7 @@ function geocoder_arcgis($address, $options = array()) {
 
   try {
     $geocoder = new GeocoderArcgis(new DrupalEnvironment(), $options);
-    return $geocoder->getLocationFromAddress($address);
+    return $geocoder->getLocation($address);
   }
   catch (ArcgisException $e) {
     watchdog_exception('geocoder', $e);
