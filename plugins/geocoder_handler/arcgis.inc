@@ -7,6 +7,11 @@
  * Based on the Google Geocoder CTools plugin.
  */
 
+use Drupal\geocoder_arcgis\GeocoderArcgis\ArcgisException;
+use Drupal\geocoder_arcgis\GeocoderArcgis\ArcgisPoint;
+use Drupal\geocoder_arcgis\GeocoderArcgis\DrupalEnvironment;
+use Drupal\geocoder_arcgis\GeocoderArcgis\GeocoderArcgis;
+
 /**
  * Plugins are described by creating a $plugin array which will be used
  * by the system that includes this file.
@@ -36,92 +41,37 @@ $plugin = array(
  * @param array $options
  *   Array with options set in the backend
  *
- * @return \GeometryCollection|NULL
- *   Geometry collection result or NULL if none/error
+ * @return ArcgisPoint|\MultiPoint|\GeometryCollection|NULL
+ *   Geometry type class or NULL if none/error
  */
 function geocoder_arcgis($address, $options = array()) {
+  autoload_geocoder_arcgis();
+
   try {
-    geophp_load();
-
-    $query = array(
-      'singleLine' => $address,
-      'f' => 'json',
-    );
-
-    if (!isset($options['https']) || $options['https']) {
-      $protocol = 'https';
-    }
-    else {
-      $protocol = 'http';
-    }
-
-    $url = url(
-      $protocol . "://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/findAddressCandidates",
-      array('query' => $query)
-    );
-    $results = drupal_http_request($url);
-
-    if (isset($results->error)) {
-      $args = array(
-        '@code' => $results->code,
-        '@error' => $results->error,
-      );
-      $msg = t('HTTP request to ArcGIS failed.\nCode: @code\nError: @error', $args);
-      throw new Exception($msg);
-    }
-
-    $data = json_decode($results->data);
-    if (empty($data->candidates)) {
-      $msg = t('ArcGIS could not find any candidates.');
-      throw new Exception($msg);
-    }
-
-    $geometries = array();
-    foreach ($data->candidates as $result) {
-      if (empty($result->location->x) || empty($result->location->y) ||
-          empty($result->score) || empty($result->address)) {
-        continue;
-      }
-
-      if (isset($options['score_threshold']) && $result->score < $options['score_threshold']) {
-        continue;
-      }
-
-      $geom = new Point($result->location->x, $result->location->y);
-
-      // Add additional metadata to the geometry.
-      $geom->data = array();
-      $geom->data['geocoder_score'] = $result->score;
-      $geom->data['geocoder_address'] = $result->address;
-
-      $geometries[] = $geom;
-    }
-
-    if (empty($geometries)) {
-      $msg = t('ArcGIS did not return any valid candidates.');
-      throw new Exception($msg);
-    }
-
-    // Check if we should return all results as a compound geometry.
-    if (!empty($options['all_results'])) {
-      return geoPHP::geometryReduce($geometries);
-    }
-
-    // The canonical geometry is the first result (best guess).
-    $geometry = array_shift($geometries);
-
-    // If there are any other geometries, these are auxiliary geometries
-    // that represent "alternatives".
-    if (count($geometries)) {
-      $geometry->data['geocoder_alternatives'] = $geometries;
-    }
-
-    return $geometry;
+    $geocoder = new GeocoderArcgis(new DrupalEnvironment(), $options);
+    return $geocoder->getLocation($address);
   }
-  catch (Exception $e) {
+  catch (ArcgisException $e) {
     watchdog_exception('geocoder', $e);
     return NULL;
   }
+}
+
+/**
+ * Autoload the Geocoder ArcGIS classes.
+ *
+ * Either by using an autoload or by requiring the four files.
+ */
+function autoload_geocoder_arcgis() {
+  if (class_exists('Drupal\geocoder_arcgis\GeocoderArcgis\GeocoderArcgis')) {
+    return;
+  }
+
+  $path = dirname(dirname(__DIR__)) . '/src/GeocoderArcgis/';
+  require $path . 'ArcgisException.php';
+  require $path . 'ArcgisPoint.php';
+  require $path . 'DrupalEnvironment.php';
+  require $path . 'GeocoderArcgis.php';
 }
 
 /**
@@ -138,26 +88,30 @@ function geocoder_arcgis($address, $options = array()) {
  *   Geometry collection result or NULL if none/error
  */
 function geocoder_arcgis_field($field, $field_item, $options = array()) {
-  if ($field['type'] == 'computed' ||
-      $field['type'] == 'text' ||
-      $field['type'] == 'text_long' ||
-      $field['type'] == 'text_with_summary') {
+  if ($field['type'] === 'computed' ||
+      $field['type'] === 'text' ||
+      $field['type'] === 'text_long' ||
+      $field['type'] === 'text_with_summary') {
     return geocoder_arcgis($field_item['value'], $options);
   }
-  if ($field['type'] == 'addressfield') {
+
+  if ($field['type'] === 'addressfield') {
     $address = geocoder_widget_parse_addressfield($field_item);
     return geocoder_arcgis($address, $options);
   }
-  if ($field['type'] == 'location') {
+
+  if ($field['type'] === 'location') {
     $address = geocoder_widget_parse_locationfield($field_item);
     return geocoder_arcgis($address, $options);
   }
-  if ($field['type'] == 'taxonomy_term_reference') {
+
+  if ($field['type'] === 'taxonomy_term_reference') {
     $term = taxonomy_term_load($field_item['tid']);
     if ($term) {
       return geocoder_arcgis($term->name, $options);
     }
   }
+
   return NULL;
 }
 
