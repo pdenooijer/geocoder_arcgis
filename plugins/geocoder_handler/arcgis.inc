@@ -88,24 +88,24 @@ function autoload_geocoder_arcgis() {
  *   Geometry collection result or NULL if none/error
  */
 function geocoder_arcgis_field($field, $field_item, $options = array()) {
-  if ($field['type'] == 'computed' ||
-      $field['type'] == 'text' ||
-      $field['type'] == 'text_long' ||
-      $field['type'] == 'text_with_summary') {
+  if ($field['type'] === 'computed' ||
+      $field['type'] === 'text' ||
+      $field['type'] === 'text_long' ||
+      $field['type'] === 'text_with_summary') {
     return geocoder_arcgis($field_item['value'], $options);
   }
 
-  if ($field['type'] == 'addressfield') {
+  if ($field['type'] === 'addressfield') {
     $address = geocoder_widget_parse_addressfield($field_item);
     return geocoder_arcgis($address, $options);
   }
 
-  if ($field['type'] == 'location') {
+  if ($field['type'] === 'location') {
     $address = geocoder_widget_parse_locationfield($field_item);
     return geocoder_arcgis($address, $options);
   }
 
-  if ($field['type'] == 'taxonomy_term_reference') {
+  if ($field['type'] === 'taxonomy_term_reference') {
     $term = taxonomy_term_load($field_item['tid']);
     if ($term) {
       return geocoder_arcgis($term->name, $options);

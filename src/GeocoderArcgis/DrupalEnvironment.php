@@ -50,8 +50,7 @@ class DrupalEnvironment {
    */
   public function translate($string, array $replacements = array()) {
     // Ignore 'Only string literals should be passed to t() where possible'.
-    // @codingStandardsIgnoreStart
+    // @codingStandardsIgnoreLine
     return t($string, $replacements);
-    // @codingStandardsIgnoreEnd
   }
 }
