@@ -15,11 +15,13 @@ use geoPHP;
 class GeocoderArcgis {
 
   /**
+   * DrupalEnvironment.
    * @var DrupalEnvironment
    */
   protected $env;
 
   /**
+   * Options that are set in the backend.
    * @var array
    */
   protected $options;
@@ -28,27 +30,28 @@ class GeocoderArcgis {
    * GeocoderArcgis constructor.
    *
    * @param DrupalEnvironment $env
-   *   The DrupalEnvironment
+   *   The DrupalEnvironment.
    * @param array $options
-   *   Specified options
+   *   Specified options.
    */
   public function __construct(DrupalEnvironment $env, array $options) {
     $this->env = $env;
     $this->options = $options;
 
-    $env->loadGeoPHP();
+    $env->loadGeoPhp();
   }
 
   /**
    * Get the location coordinates from an address.
    *
    * @param string $address
-   *   The specified address
+   *   The specified address.
    *
    * @return ArcgisPoint|\MultiPoint
-   *   The result
+   *   The result.
    *
    * @throws ArcgisException
+   *   Throws a ArcgisException when a error occurs.
    */
   public function getLocation($address) {
     $geometries = $this->retrieveGeometries($address);
@@ -60,15 +63,16 @@ class GeocoderArcgis {
    * Retrieve the geometries array from the given address.
    *
    * @param string $address
-   *   The specified address
+   *   The specified address.
    *
    * @return array
-   *   Geometry points
+   *   Geometry points.
    *
    * @throws ArcgisException
+   *   Throws a ArcgisException when a error occurs.
    */
   protected function retrieveGeometries($address) {
-    $json = $this->requestJSONEncodedGeometryData($address);
+    $json = $this->requestJsonEncodedGeometryData($address);
 
     $data = $this->decodeGeometryData($json);
 
@@ -79,15 +83,16 @@ class GeocoderArcgis {
    * Request the JSON string from the given address.
    *
    * @param string $address
-   *   The specified address
+   *   The specified address.
    *
    * @return string
-   *   JSON geometry data
+   *   JSON geometry data.
    *
    * @throws ArcgisException
+   *   Throws a ArcgisException when a error occurs.
    */
-  protected function requestJSONEncodedGeometryData($address) {
-    $results = $this->env->doHTTPRequest(
+  protected function requestJsonEncodedGeometryData($address) {
+    $results = $this->env->doHttpRequest(
       $this->buildUrlWithQuery($address)
     );
 
@@ -110,10 +115,10 @@ class GeocoderArcgis {
    * Build the url and query.
    *
    * @param string $address
-   *   The specified address
+   *   The specified address.
    *
    * @return string
-   *   The url with query string
+   *   The url with query string.
    */
   protected function buildUrlWithQuery($address) {
     $query = http_build_query(
@@ -138,12 +143,13 @@ class GeocoderArcgis {
    * Decode the data field in the given results object.
    *
    * @param string $json
-   *   JSON geometry data
+   *   JSON geometry data.
    *
    * @return object
-   *   JSON decoded object
+   *   JSON decoded object.
    *
    * @throws ArcgisException
+   *   Throws a ArcgisException when a error occurs.
    */
   protected function decodeGeometryData($json) {
     $data = json_decode($json);
@@ -160,12 +166,13 @@ class GeocoderArcgis {
    * Create valid geometry objects from the data object.
    *
    * @param object $data
-   *   JSON decoded data
+   *   JSON decoded data.
    *
    * @return array
-   *   Geometry points
+   *   Geometry points.
    *
    * @throws ArcgisException
+   *   Throws a ArcgisException when a error occurs.
    */
   protected function createValidGeometries($data) {
     $geometries = $this->validateAndCreateGeometries($data);
@@ -182,10 +189,10 @@ class GeocoderArcgis {
    * Validate and create the geometries array.
    *
    * @param object $data
-   *   JSON decoded
+   *   JSON decoded.
    *
    * @return array
-   *   Geometries points
+   *   Geometries points.
    */
   protected function validateAndCreateGeometries($data) {
     $geometries = array();
@@ -205,10 +212,10 @@ class GeocoderArcgis {
    * Validate if the candidate is valid and meets the score threshold.
    *
    * @param object $candidate
-   *   Candidate
+   *   Candidate.
    *
    * @return bool
-   *   True if valid, else false
+   *   True if valid, else false.
    */
   protected function validateCandidate($candidate) {
     return $this->isCandidateValid($candidate) && $this->doesCandidateMeetScoreThreshold($candidate);
@@ -218,10 +225,10 @@ class GeocoderArcgis {
    * Check if a candidate that has all required data.
    *
    * @param object $candidate
-   *   Candidate
+   *   Candidate.
    *
    * @return bool
-   *   True when valid, else false
+   *   True when valid, else false.
    */
   protected function isCandidateValid($candidate) {
     return !empty($candidate->location->x) && !empty($candidate->location->y) &&
@@ -232,10 +239,10 @@ class GeocoderArcgis {
    * Validate if the candidate result meets the score threshold.
    *
    * @param object $candidate
-   *   Candidate
+   *   Candidate.
    *
    * @return bool
-   *   True if met or not set, else false
+   *   True if met or not set, else false.
    */
   protected function doesCandidateMeetScoreThreshold($candidate) {
     if (isset($this->options['score_threshold'])) {
@@ -248,10 +255,10 @@ class GeocoderArcgis {
    * Create the ArcgisPoint from the given result.
    *
    * @param object $candidate
-   *   Candidate
+   *   Candidate.
    *
    * @return ArcgisPoint
-   *   Geometry point
+   *   Geometry point.
    */
   protected function createArcgisPoint($candidate) {
     $arcgis_point = new ArcgisPoint($candidate->location->x, $candidate->location->y);
@@ -267,10 +274,10 @@ class GeocoderArcgis {
    * Get the location from the provided geometries.
    *
    * @param array $geometries
-   *   ArgisPoint array
+   *   ArgisPoint array.
    *
    * @return ArcgisPoint|\GeometryCollection
-   *   Location
+   *   Location.
    */
   protected function convertToLocation(array $geometries) {
     if ($this->isOptionAllResultsSet()) {
@@ -284,7 +291,7 @@ class GeocoderArcgis {
    * Check if the all_results options is set.
    *
    * @return bool
-   *   True when set, false otherwise
+   *   True when set, false otherwise.
    */
   protected function isOptionAllResultsSet() {
     return !empty($this->options['all_results']);
@@ -296,10 +303,10 @@ class GeocoderArcgis {
    * The others will be added as alternatives in the data field.
    *
    * @param array $geometries
-   *   ArcgisPoint array
+   *   ArcgisPoint array.
    *
    * @return ArcgisPoint
-   *   Best ArcgisPoint
+   *   Best ArcgisPoint.
    */
   protected function extractBestGeometryWithAlternatives(array $geometries) {
     // The canonical geometry is the first result (best guess).
@@ -311,4 +318,5 @@ class GeocoderArcgis {
 
     return $geometry;
   }
+
 }

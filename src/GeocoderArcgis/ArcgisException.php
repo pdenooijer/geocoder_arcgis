@@ -8,6 +8,6 @@
 namespace Drupal\geocoder_arcgis\GeocoderArcgis;
 
 /**
- * Class ArcgisException
+ * Class ArcgisException.
  */
 class ArcgisException extends \Exception {}

@@ -167,9 +167,9 @@ class GeocoderArcgisTest extends \PHPUnit_Framework_TestCase {
    * Do assert checks on the default ArcgisPoint object.
    *
    * @param ArcgisPoint $point
-   *   The ArcgisPoint to check
+   *   The ArcgisPoint to check.
    */
-  private function checkArcgisPoint($point) {
+  private function checkArcgisPoint(ArcgisPoint $point) {
     $this->assertInstanceOf('Drupal\geocoder_arcgis\GeocoderArcgis\ArcgisPoint', $point);
     $this->assertObjectHasAttribute('data', $point);
     $this->assertObjectHasAttribute('coords', $point);
@@ -192,16 +192,16 @@ class GeocoderArcgisTest extends \PHPUnit_Framework_TestCase {
    * Create a GeocoderArcgis object with a DrupalEnvironment Mock.
    *
    * @param object $result
-   *   The HTTP request result
+   *   The HTTP request result.
    * @param array $options
-   *   Specified options
+   *   Specified options.
    * @param string $url
-   *   The request url
+   *   The request url.
    *
    * @return GeocoderArcgis
-   *   Newly created object
+   *   Newly created object.
    */
-  private function createGeocoderArcgis($result, $options = array(), $url = '') {
+  private function createGeocoderArcgis($result, array $options = array(), $url = '') {
     $env = $this->getDrupalEnvironmentMock($result, $url);
     return new GeocoderArcgis($env, $options);
   }
@@ -210,12 +210,12 @@ class GeocoderArcgisTest extends \PHPUnit_Framework_TestCase {
    * Set up the test cases.
    *
    * @param object $result
-   *   The HTTP request result
+   *   The HTTP request result.
    * @param string $url
-   *   The request url
+   *   The request url.
    *
    * @return \PHPUnit_Framework_MockObject_MockObject
-   *   DrupalEnvironment mock
+   *   DrupalEnvironment mock.
    */
   private function getDrupalEnvironmentMock($result, $url) {
     if (!$url) {
@@ -223,14 +223,14 @@ class GeocoderArcgisTest extends \PHPUnit_Framework_TestCase {
     }
 
     $geocoder = $this->getMockBuilder('\Drupal\geocoder_arcgis\GeocoderArcgis\DrupalEnvironment')
-      ->setMethods(array('loadGeoPHP', 'doHTTPRequest', 'translate'))
+      ->setMethods(array('loadGeoPhp', 'doHttpRequest', 'translate'))
       ->getMock();
 
     $geocoder->expects($this->once())
-      ->method('loadGeoPHP');
+      ->method('loadGeoPhp');
 
     $geocoder->expects($this->once())
-      ->method('doHTTPRequest')
+      ->method('doHttpRequest')
       ->with($this->equalTo($url))
       ->will($this->returnValue($result));
 
@@ -254,7 +254,7 @@ class GeocoderArcgisTest extends \PHPUnit_Framework_TestCase {
    * Default results for a query to find the ibuildings location.
    *
    * @return object
-   *   Object with data variable
+   *   Object with data variable.
    */
   private function getResults() {
     $data = <<<'JSON'
@@ -262,4 +262,5 @@ class GeocoderArcgisTest extends \PHPUnit_Framework_TestCase {
 JSON;
     return (object) array('data' => $data);
   }
+
 }

@@ -13,6 +13,8 @@ use Drupal\geocoder_arcgis\GeocoderArcgis\DrupalEnvironment;
 use Drupal\geocoder_arcgis\GeocoderArcgis\GeocoderArcgis;
 
 /**
+ * Plugin description.
+ *
  * Plugins are described by creating a $plugin array which will be used
  * by the system that includes this file.
  */
@@ -36,13 +38,13 @@ $plugin = array(
 /**
  * Process the address data.
  *
- * @param array $address
- *   Address array
+ * @param string $address
+ *   The address to find geo location for.
  * @param array $options
- *   Array with options set in the backend
+ *   Array with options set in the backend.
  *
  * @return ArcgisPoint|\MultiPoint|\GeometryCollection|NULL
- *   Geometry type class or NULL if none/error
+ *   Geometry type class or NULL if none/error.
  */
 function geocoder_arcgis($address, $options = array()) {
   geocoder_arcgis_autoload();
@@ -78,16 +80,16 @@ function geocoder_arcgis_autoload() {
  * Get the data from the field and return a geometry object.
  *
  * @param array $field
- *   Input field
+ *   Input field.
  * @param array $field_item
- *   Input field values
+ *   Input field values.
  * @param array $options
- *   Array with options set in the backend
+ *   Array with options set in the backend.
  *
  * @return \GeometryCollection|NULL
- *   Geometry collection result or NULL if none/error
+ *   Geometry collection result or NULL if none/error.
  */
-function geocoder_arcgis_field($field, $field_item, $options = array()) {
+function geocoder_arcgis_field(array $field, array $field_item, array $options = array()) {
   if ($field['type'] === 'computed' ||
       $field['type'] === 'text' ||
       $field['type'] === 'text_long' ||
@@ -119,12 +121,12 @@ function geocoder_arcgis_field($field, $field_item, $options = array()) {
  * Form to set the ArcGIS options.
  *
  * @param array $default_values
- *   Array containing the default or set values
+ *   Array containing the default or set values.
  *
  * @return array
- *   Form array
+ *   Form array.
  */
-function geocoder_arcgis_form($default_values = array()) {
+function geocoder_arcgis_form(array $default_values = array()) {
   $form = array();
 
   $form['https'] = array(
@@ -160,4 +162,5 @@ function geocoder_arcgis_form($default_values = array()) {
   );
 
   return $form;
+
 }
