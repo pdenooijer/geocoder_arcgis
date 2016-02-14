@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * ArcgisPoint class, used to add public data variable to \Point class.
+ */
+
 namespace Drupal\geocoder_arcgis\GeocoderArcgis;
 
 /**
@@ -11,5 +16,4 @@ class ArcgisPoint extends \Point {
    * @var array
    */
   public $data = array();
-
 }

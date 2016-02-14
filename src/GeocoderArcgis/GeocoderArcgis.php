@@ -2,7 +2,7 @@
 
 /**
  * @file
- * GeocoderArgis class that handles geolocation coordinates from an address.
+ * GeocoderArcgis class that handles geo coordinates from an address.
  */
 
 namespace Drupal\geocoder_arcgis\GeocoderArcgis;
@@ -10,7 +10,7 @@ namespace Drupal\geocoder_arcgis\GeocoderArcgis;
 use geoPHP;
 
 /**
- * Class GeocoderArcgis
+ * Class GeocoderArcgis.
  */
 class GeocoderArcgis {
 

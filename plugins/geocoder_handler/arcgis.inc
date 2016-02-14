@@ -45,7 +45,7 @@ $plugin = array(
  *   Geometry type class or NULL if none/error
  */
 function geocoder_arcgis($address, $options = array()) {
-  autoload_geocoder_arcgis();
+  geocoder_arcgis_autoload();
 
   try {
     $geocoder = new GeocoderArcgis(new DrupalEnvironment(), $options);
@@ -62,7 +62,7 @@ function geocoder_arcgis($address, $options = array()) {
  *
  * Either by using an autoload or by requiring the four files.
  */
-function autoload_geocoder_arcgis() {
+function geocoder_arcgis_autoload() {
   if (class_exists('Drupal\geocoder_arcgis\GeocoderArcgis\GeocoderArcgis')) {
     return;
   }

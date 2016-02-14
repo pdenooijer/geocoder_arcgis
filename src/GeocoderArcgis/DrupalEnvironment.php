@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * @file
+ * DrupalEnvironment class, used as a Adapter to all Drupal functions.
+ * This way we can easily mock them for testing purposes.
+ */
+
 namespace Drupal\geocoder_arcgis\GeocoderArcgis;
 
 use Exception;
