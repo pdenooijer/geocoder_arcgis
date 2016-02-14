@@ -16,12 +16,14 @@ class GeocoderArcgis {
 
   /**
    * DrupalEnvironment.
+   *
    * @var DrupalEnvironment
    */
   protected $env;
 
   /**
    * Options that are set in the backend.
+   *
    * @var array
    */
   protected $options;

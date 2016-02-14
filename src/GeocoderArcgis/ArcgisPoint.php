@@ -14,6 +14,7 @@ class ArcgisPoint extends \Point {
 
   /**
    * Array to save extra meta data.
+   *
    * @var array
    */
   public $data = array();
