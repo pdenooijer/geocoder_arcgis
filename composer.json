@@ -3,9 +3,9 @@
   "description": "Provides a CTools plugin for the Geocoder module that translates an address to a geolocation by using ArcGIS.",
   "license": "GPLv3",
   "require-dev": {
-    "drupal/coder": "7.*",
-    "phayes/geophp": "1.*",
-    "phpunit/phpunit": "4.*"
+    "drupal/coder": "^8.2",
+    "phayes/geophp": "^1",
+    "phpunit/phpunit": "^5.7"
   },
   "autoload" : {
     "psr-4": {
