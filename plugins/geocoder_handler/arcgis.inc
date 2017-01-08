@@ -8,7 +8,6 @@
  */
 
 use Drupal\geocoder_arcgis\GeocoderArcgis\ArcgisException;
-use Drupal\geocoder_arcgis\GeocoderArcgis\ArcgisPoint;
 use Drupal\geocoder_arcgis\GeocoderArcgis\DrupalEnvironment;
 use Drupal\geocoder_arcgis\GeocoderArcgis\GeocoderArcgis;
 
@@ -43,10 +42,10 @@ $plugin = array(
  * @param array $options
  *   Array with options set in the backend.
  *
- * @return ArcgisPoint|\MultiPoint|\GeometryCollection|NULL
+ * @return ArcgisPoint|\MultiPoint|\GeometryCollection|null
  *   Geometry type class or NULL if none/error.
  */
-function geocoder_arcgis($address, $options = array()) {
+function geocoder_arcgis($address, array $options = array()) {
   geocoder_arcgis_autoload();
 
   try {
@@ -86,7 +85,7 @@ function geocoder_arcgis_autoload() {
  * @param array $options
  *   Array with options set in the backend.
  *
- * @return \GeometryCollection|NULL
+ * @return \GeometryCollection|null
  *   Geometry collection result or NULL if none/error.
  */
 function geocoder_arcgis_field(array $field, array $field_item, array $options = array()) {
