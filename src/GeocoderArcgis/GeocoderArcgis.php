@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * GeocoderArcgis class that handles geo coordinates from an address.
- */
-
 namespace Drupal\geocoder_arcgis\GeocoderArcgis;
 
 use geoPHP;
