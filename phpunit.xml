@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<phpunit bootstrap="src/test/bootstrap.php" colors="true">
+<phpunit bootstrap="test/src/bootstrap.php" colors="true">
     <testsuites>
         <testsuite name="Geocoder Arcgis test suite">
-            <directory suffix="Test.php">src/test/GeocoderArcgis</directory>
+            <directory suffix="Test.php">test/src/GeocoderArcgis</directory>
         </testsuite>
     </testsuites>
 

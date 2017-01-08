@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * GeocoderArcgisTest class, used to test GeocoderArcgis class.
- */
-
 namespace Drupal\geocoder_arcgis\test\GeocoderArcgis;
 
 use Drupal\geocoder_arcgis\GeocoderArcgis\ArcgisPoint;
@@ -234,18 +229,15 @@ class GeocoderArcgisTest extends \PHPUnit_Framework_TestCase {
       ->with($this->equalTo($url))
       ->will($this->returnValue($result));
 
-    // Drupal coding standard doesn't handle functions in functions right.
-    // @codingStandardsIgnoreStart
     $geocoder->expects($this->atMost(1))
       ->method('translate')
       ->will(
         $this->returnCallback(
-          function($string, $replacements = array()) {
+          function ($string, $replacements = array()) {
             return strtr($string, $replacements);
           }
         )
       );
-    // @codingStandardsIgnoreEnd
 
     return $geocoder;
   }
